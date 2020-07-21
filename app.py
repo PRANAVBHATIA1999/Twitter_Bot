@@ -1,3 +1,4 @@
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -8,7 +9,9 @@ from selenium.common.exceptions import NoSuchElementException
 import time
 
 WAITTIME = 2
-LONGWAITTIME= 5
+LONGWAITTIME = 5
+SHORTWAITTIME = 1
+VERYSHORTWAITTIME = 0.5
 
 chrome_options = webdriver.ChromeOptions()
 driver = webdriver.Chrome('chromedriver', options=chrome_options)
@@ -54,6 +57,7 @@ def get_element_data(text,typeofelement):
         element = driver.find_element_by_id(text) 
     elif str(typeofelement).lower() == 'xpath':
         element = driver.find_element_by_xpath(text) 
+        driver.find_element_by_link_text
     else:
         raise Exception('INVALID ARRUGMENT')
     return element
@@ -104,14 +108,11 @@ def remove_elements_from_second_list(mainList, targetList):
 def login(name, typeText, data):
     text= "//input[@name='{}' and @type='{}']".format(name,typeText)
     if is_element_exist(text,'xpath'): 
-        if get_element_data(text,'xpath').text is not None: 
-            remove_text_from_element(text,'xpath')
         get_element_data(text,'xpath').send_keys(data)
     else:
         time.sleep(WAITTIME)
         login(name, typeText, data)
 
-#TWEET EXISTS FUNCTIONALITY LEFT
 def tweet(messageText, noOfTweets):
     print(messageText)
     replyTextPath = '//div[@role="button" and @data-testid="reply" and @data-focusable="true"]' 
@@ -119,13 +120,20 @@ def tweet(messageText, noOfTweets):
     height,i,doneList=0,0,[]
     while i < noOfTweets:
         time.sleep(WAITTIME)    
-        reply= remove_elements_from_second_list(get_elements_data(replyTextPath,'xpath'), doneList)
+        reply = remove_elements_from_second_list(get_elements_data(replyTextPath,'xpath'), doneList)
         for j in range(len(reply)):
             try:
                 reply[j].click()
                 doneList.append(reply[j])
                 time.sleep(WAITTIME)
                 get_element_data(tweetTextPath,'xpath').send_keys(messageText + Keys.CONTROL + Keys.ENTER)
+                time.sleep(SHORTWAITTIME)
+                if driver.find_element_by_xpath('//div[@role="alert"]'):
+                    print('OPPS its look like this tweet have been already tweeted')
+                    driver.find_element_by_xpath('//div[@role="button" and @aria-label="Close"]').click()
+                    time.sleep(VERYSHORTWAITTIME)
+                    press_button("button","confirmationSheetCancel")
+                    i-=1
                 break
             except Exception:
                 continue
@@ -136,14 +144,18 @@ def tweet(messageText, noOfTweets):
 
 if __name__ == "__main__":
     try:
-        USERNAME= input("ENTER USERNAME:")
-        PASSWORD= input("ENTER PASSWORD:")
-        MESSAGE = input("ENTER MESSAGE:")
-        KEYWORD = input("ENTER KEYWORD:")
+        USERNAME= 'yalldiotmofos'
+        PASSWORD= 'pythonlove123'
+        MESSAGE = 'THORRRRR THUNDER'
+        KEYWORD = '#THOR'
+        # USERNAME= input("ENTER USERNAME:")
+        # PASSWORD= input("ENTER PASSWORD:")
+        # MESSAGE = input("ENTER MESSAGE:")
+        # KEYWORD = input("ENTER KEYWORD:")
         time.sleep(WAITTIME)
         start(USERNAME,PASSWORD)
         search(KEYWORD)
-        tweet(MESSAGE,10)
+        tweet(MESSAGE,5)
     except NoSuchElementException as e:
         print(f'ERROR FOUND-> {e}')
     except Exception as e:
