@@ -21,7 +21,9 @@ driver.get("https://twitter.com/search?q=AVENGER&src=typed_query")
 
 def get_curr_url():
     return driver.current_url
-def check_url(text):
+def check_url(text, Partial= False):
+    if Partial == True:
+        return True if text in get_curr_url() else False 
     return True if text == get_curr_url() else False 
 
 def is_element_exist(text,typeofelement):
@@ -39,6 +41,9 @@ def get_elements_data(text,typeofelement):
     else:
         raise Exception('INVALID ARRUGMENT')
     return elements
+
+def remove_text_from_element(text, typeofelement):
+    get_element_data(text,typeofelement).send_keys(Keys.CONTROL + 'a'+  Keys.BACKSPACE)
 
 def get_element_data(text,typeofelement):
     if str(typeofelement).lower() == "partial_link_text":
@@ -66,21 +71,21 @@ def start(USERNAME, PASSWORD):
     if check_url("https://twitter.com/login") == False:
         print('Not on Login Page // Redirecting to Login Page')
         driver.get("https://twitter.com/login")
-    print('SENDING DATA TO FIELDS')
+    print('SENDING USERNAME AND PASSWORD TO FIELDS')
     login('session[username_or_email]', 'text', USERNAME)
     login('session[password]', 'password', PASSWORD)
     press_button('button', 'LoginForm_Login_Button')
-    if is_element_exist('The username and password you entered did not match our records.', "partial_link_text"):
+    if check_url("https://twitter.com/login", True):
         print("IVALID USERNAME AND PASSWORD")
         USERNAME= input('Enter Correct Username:')
         PASSWORD= input('Enter Correct Password:')
         start(USERNAME, PASSWORD)
-    
+
 def search(searchText, clear=False):
     text= '//input[@data-testid="SearchBox_Search_Input" and @placeholder="Search Twitter"]'
     if clear == True: 
         if is_element_exist(text,'xpath'): 
-            get_element_data(text,'xpath').send_keys(Keys.CONTROL + 'a'+  Keys.BACKSPACE)
+            remove_text_from_element(text,'xpath')
         else:
             time.sleep(WAITTIME)
             search(searchText, clear=True)    
@@ -99,6 +104,8 @@ def remove_elements_from_second_list(mainList, targetList):
 def login(name, typeText, data):
     text= "//input[@name='{}' and @type='{}']".format(name,typeText)
     if is_element_exist(text,'xpath'): 
+        if get_element_data(text,'xpath').text is not None: 
+            remove_text_from_element(text,'xpath')
         get_element_data(text,'xpath').send_keys(data)
     else:
         time.sleep(WAITTIME)
@@ -129,7 +136,6 @@ def tweet(messageText, noOfTweets):
 
 if __name__ == "__main__":
     try:
-        #STARTED
         USERNAME= input("ENTER USERNAME:")
         PASSWORD= input("ENTER PASSWORD:")
         MESSAGE = input("ENTER MESSAGE:")
