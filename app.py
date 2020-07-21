@@ -129,6 +129,7 @@ def tweet(messageText, noOfTweets):
 
 if __name__ == "__main__":
     try:
+        #STARTED
         USERNAME= input("ENTER USERNAME:")
         PASSWORD= input("ENTER PASSWORD:")
         MESSAGE = input("ENTER MESSAGE:")
