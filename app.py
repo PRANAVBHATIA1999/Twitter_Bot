@@ -18,7 +18,7 @@ driver = webdriver.Chrome('chromedriver', options=chrome_options)
 act=ActionChains(driver)
 wait= WebDriverWait(driver, 5)
 driver.delete_all_cookies()
-driver.get("https://twitter.com/search?q=AVENGER&src=typed_query")
+driver.get("https://twitter.com/")
 
 
 
